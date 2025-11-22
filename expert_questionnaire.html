@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Опросник эксперта — 98 вопросов</title>
+
+  <!-- Tailwind CDN to match original styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap');
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-black pb-20 text-white">
+  <!-- Sticky header -->
+  <header class="sticky top-0 z-50 bg-black/95 backdrop-blur-xl border-b border-gray-800">
+    <div class="px-4 pt-6 pb-4">
+      <h1 class="text-3xl text-white mb-1 tracking-tight">ОПРОСНИК</h1>
+      <p class="text-sm text-gray-400 tracking-wide">98 ВОПРОСОВ</p>
+
+      <!-- Total progress -->
+      <div class="mt-5 mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-gray-400 tracking-widest">ПРОГРЕСС</span>
+          <span id="total-filled" class="text-lg text-white">0<span class="text-gray-600">/98</span></span>
+        </div>
+        <div class="h-2 bg-gray-900 rounded-full overflow-hidden">
+          <div id="total-bar" class="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-400 rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="grid grid-cols-3 gap-2 mt-4">
+        <button id="btn-save" class="flex flex-col items-center justify-center gap-1 py-3 bg-gray-900 text-white rounded-2xl active:scale-95 transition-transform">
+          <i id="icon-save" data-lucide="save" class="w-5 h-5"></i>
+          <span id="label-save" class="text-xs tracking-wide">СОХРАНИТЬ</span>
+        </button>
+        <button id="btn-copy" class="flex flex-col items-center justify-center gap-1 py-3 bg-gray-900 text-white rounded-2xl active:scale-95 transition-transform">
+          <i id="icon-copy" data-lucide="download" class="w-5 h-5"></i>
+          <span id="label-copy" class="text-xs tracking-wide">КОПИЯ</span>
+        </button>
+        <button id="btn-csv" class="flex flex-col items-center justify-center gap-1 py-3 bg-gray-900 text-white rounded-2xl active:scale-95 transition-transform">
+          <i id="icon-csv" data-lucide="download" class="w-5 h-5"></i>
+          <span id="label-csv" class="text-xs tracking-wide">CSV</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="px-4 py-4">
+    <div id="categories-root"></div>
+  </main>
+
+<script>
+  // ====== Data from original TSX ======
+  const questions = [
+
+    // 1. ЭКСПЕРТНОСТЬ - вопросы 1-14
+    { num: 1, section: "ЭКСПЕРТНОСТЬ", question: "Как ты попал в эту сферу? Чем занимался до этого?", emoji: "🎯" },
+    { num: 2, section: "ЭКСПЕРТНОСТЬ", question: "Как долго ты учился перед тем, как ворваться в сферу? И где?", emoji: "📚" },
+    { num: 3, section: "ЭКСПЕРТНОСТЬ", question: "Какие были страхи перед тем, как начать?", emoji: "😰" },
+    { num: 4, section: "ЭКСПЕРТНОСТЬ", question: "Расскажи о своем первом… (проекте, выступлении и т.д.)", emoji: "🚀" },
+    { num: 5, section: "ЭКСПЕРТНОСТЬ", question: "Какие главные трудности ты преодолевал в начале этого пути?", emoji: "⛰️" },
+    { num: 6, section: "ЭКСПЕРТНОСТЬ", question: "Тебя поддерживали, когда ты начинал или критиковали?", emoji: "🤝" },
+    { num: 7, section: "ЭКСПЕРТНОСТЬ", question: "Сколько времени прошло до первых результатов?", emoji: "⏰" },
+    { num: 8, section: "ЭКСПЕРТНОСТЬ", question: "Какие этапы ты прошел в своей сфере?", emoji: "🪜" },
+    { num: 9, section: "ЭКСПЕРТНОСТЬ", question: "Какие ключевые решения были на каждом этапе?", emoji: "🎲" },
+    { num: 10, section: "ЭКСПЕРТНОСТЬ", question: "Какие главные трудности были на каждом этапе?", emoji: "🧗" },
+    { num: 11, section: "ЭКСПЕРТНОСТЬ", question: "Расскажи про свои самые жесткие обломы и провалы в сфере", emoji: "💔" },
+    { num: 12, section: "ЭКСПЕРТНОСТЬ", question: "Расскажи про момент когда ты чуть не бросил", emoji: "😤" },
+    { num: 13, section: "ЭКСПЕРТНОСТЬ", question: "Расскажи про первую большую победу", emoji: "🏆" },
+    { num: 14, section: "ЭКСПЕРТНОСТЬ", question: "Расскажи про момент, когда чувствовал себя на пике успеха", emoji: "⭐" },
+    
+    // 2. ПРОДАЖА ТЕМЫ - вопросы 15-30
+    { num: 15, section: "ПРОДАЖА ТЕМЫ", question: "Почему ты сейчас занимаешься именно этим?", emoji: "💡" },
+    { num: 16, section: "ПРОДАЖА ТЕМЫ", question: "Как изменилось качество быта? (квартира, еда, такси, уборка)", emoji: "🏠" },
+    { num: 17, section: "ПРОДАЖА ТЕМЫ", question: "Как изменилось твое окружение и отношения с друзьями?", emoji: "👥" },
+    { num: 18, section: "ПРОДАЖА ТЕМЫ", question: "Как изменилось твое самоощущение?", emoji: "😊" },
+    { num: 19, section: "ПРОДАЖА ТЕМЫ", question: "Как изменилась твоя личность?", emoji: "🦋" },
+    { num: 20, section: "ПРОДАЖА ТЕМЫ", question: "Что ты себе купил или позволил благодаря сфере?", emoji: "🎁" },
+    { num: 21, section: "ПРОДАЖА ТЕМЫ", question: "Что изменилось на личном фронте благодаря этой сфере?", emoji: "❤️" },
+    { num: 22, section: "ПРОДАЖА ТЕМЫ", question: "Как родители / муж / одноклассники теперь к тебе относятся?", emoji: "👨‍👩‍👦" },
+    { num: 23, section: "ПРОДАЖА ТЕМЫ", question: "Опиши момент, когда ты понял, что все это не зря.", emoji: "💫" },
+    { num: 24, section: "ПРОДАЖА ТЕМЫ", question: "Почему стоит заниматься твоей сферой?", emoji: "🎪" },
+    { num: 25, section: "ПРОДАЖА ТЕМЫ", question: "Какие качества прокачивает твоя сфера?", emoji: "💪" },
+    { num: 26, section: "ПРОДАЖА ТЕМЫ", question: "Какую мечту ты воплотил благодаря сфере?", emoji: "🌟" },
+    { num: 27, section: "ПРОДАЖА ТЕМЫ", question: "Нравится ли тебе сам процесс работы в твоей сфере?", emoji: "🎨" },
+    { num: 28, section: "ПРОДАЖА ТЕМЫ", question: "Чем он лучше остальных сфер?", emoji: "🥇" },
+    { num: 29, section: "ПРОДАЖА ТЕМЫ", question: "Расскажи про 3-х друзей или коллег, чья жизнь сильно трансформировалась благодаря сфере", emoji: "🌈" },
+    { num: 30, section: "ПРОДАЖА ТЕМЫ", question: "Как со стороны люди могут понять твой успех в сфере, если ты ничего не будешь говорить?", emoji: "👀" },
+    
+    // 3. ЗНАНИЯ И ОПЫТ - вопросы 31-53
+    { num: 31, section: "ЗНАНИЯ И ОПЫТ", question: "Чем отличается новичок от профи?", emoji: "🎓" },
+    { num: 32, section: "ЗНАНИЯ И ОПЫТ", question: "Из каких 5–10 пазлов состоит успех в твоей сфере?", emoji: "🧩" },
+    { num: 33, section: "ЗНАНИЯ И ОПЫТ", question: "Какие 5 самых частых ошибок в каждом пазле?", emoji: "⚠️" },
+    { num: 34, section: "ЗНАНИЯ И ОПЫТ", question: "Расскажи 1 простую, применимую и полезную фишку из твоей сферы", emoji: "✨" },
+    { num: 35, section: "ЗНАНИЯ И ОПЫТ", question: "Какой пошаговый план для достижения твоих результатов?", emoji: "📋" },
+    { num: 36, section: "ЗНАНИЯ И ОПЫТ", question: "Расскажи про свой самый большой и крутой проект / клиента", emoji: "🎯" },
+    { num: 37, section: "ЗНАНИЯ И ОПЫТ", question: "Расскажи про самый странный проект", emoji: "🤪" },
+    { num: 38, section: "ЗНАНИЯ И ОПЫТ", question: "Расскажи самый смешной случай за время работы", emoji: "😂" },
+    { num: 39, section: "ЗНАНИЯ И ОПЫТ", question: "Сколько лет ты уже в своей сфере?", emoji: "📅" },
+    { num: 40, section: "ЗНАНИЯ И ОПЫТ", question: "Какие главные достижения за это время?", emoji: "🏅" },
+    { num: 41, section: "ЗНАНИЯ И ОПЫТ", question: "Как мы можем отобразить твои результаты в цифрах?", emoji: "📊" },
+    { num: 42, section: "ЗНАНИЯ И ОПЫТ", question: "Сколько ты сейчас на этом зарабатываешь? (если уместно)", emoji: "💰" },
+    { num: 43, section: "ЗНАНИЯ И ОПЫТ", question: "Есть ли у тебя какие-то дипломы, сертификаты, награды или регалии?", emoji: "🎖️" },
+    { num: 44, section: "ЗНАНИЯ И ОПЫТ", question: "Сколько у тебя было клиентов / учеников? Есть ли среди них известные?", emoji: "👨‍🎓" },
+    { num: 45, section: "ЗНАНИЯ И ОПЫТ", question: "Какие самые частые проблемы и трудности у твоих учеников?", emoji: "🆘" },
+    { num: 46, section: "ЗНАНИЯ И ОПЫТ", question: "Как ты их решаешь?", emoji: "🔧" },
+    { num: 47, section: "ЗНАНИЯ И ОПЫТ", question: "Какие самые частые 3–5 страхов твоих учеников?", emoji: "👻" },
+    { num: 48, section: "ЗНАНИЯ И ОПЫТ", question: "Какие лучшие результаты твоих учеников / клиентов?", emoji: "🎉" },
+    { num: 49, section: "ЗНАНИЯ И ОПЫТ", question: "Что самое главное в твоей работе?", emoji: "🎯" },
+    { num: 50, section: "ЗНАНИЯ И ОПЫТ", question: "Что главное, чтобы хорошо обучать людей в твоей сфере?", emoji: "👨‍🏫" },
+    { num: 51, section: "ЗНАНИЯ И ОПЫТ", question: "Почему стоит пойти учиться именно к тебе?", emoji: "🌟" },
+    { num: 52, section: "ЗНАНИЯ И ОПЫТ", question: "Какие личностные качества должен иметь успешный… (твоя сфера)", emoji: "💎" },
+    { num: 53, section: "ЗНАНИЯ И ОПЫТ", question: "Твои сильные стороны (навыки) в твоей сфере. В чем ты король?", emoji: "👑" },
+    
+    // 4. О КУРСЕ - вопросы 54-64
+    { num: 54, section: "О КУРСЕ", question: "Можно ли сказать, что твой курс окупается?", emoji: "💵" },
+    { num: 55, section: "О КУРСЕ", question: "Есть ли у тебя авторские методы и фишки, которым ты обучаешь?", emoji: "🔮" },
+    { num: 56, section: "О КУРСЕ", question: "Что есть на твоем курсе чего нет у других?", emoji: "🎁" },
+    { num: 57, section: "О КУРСЕ", question: "Кто спикеры на твоем курсе?", emoji: "🎤" },
+    { num: 58, section: "О КУРСЕ", question: "Какие 5 лучших технологических решений на твоем курсе?", emoji: "⚙️" },
+    { num: 59, section: "О КУРСЕ", question: "Давал ли ты это обучение своим братьям, сестрам, родителям, друзьям?", emoji: "👪" },
+    { num: 60, section: "О КУРСЕ", question: "Есть ли сертификат по итогу курса?", emoji: "📜" },
+    { num: 61, section: "О КУРСЕ", question: "Какие гарантии мы можем юридически зафиксировать?", emoji: "✍️" },
+    { num: 62, section: "О КУРСЕ", question: "Какие качества должен иметь хороший учитель?", emoji: "🧑‍🏫" },
+    { num: 63, section: "О КУРСЕ", question: "Какие из них есть в тебе и как это проявляется?", emoji: "🪞" },
+    { num: 64, section: "О КУРСЕ", question: "В чем проявляется твоя любовь к ученикам?", emoji: "💝" },
+    
+    // 5. ЛИЧНОСТЬ И ЖИЗНЬ - вопросы 65-77
+    { num: 65, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Из чего сейчас состоит твоя жизнь помимо работы?", emoji: "🌍" },
+    { num: 66, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Как проходит твой обычный день?", emoji: "☀️" },
+    { num: 67, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Давай составим колесо баланса твоей жизни", emoji: "⚖️" },
+    { num: 68, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Какую главную проблему ты сейчас решаешь? Например, бросаю кальяны", emoji: "🎯" },
+    { num: 69, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "В чем ты видишь свою большую миссию?", emoji: "🌟" },
+    { num: 70, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Что тебя мотивирует сейчас?", emoji: "🔥" },
+    { num: 71, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Какие люди тебя вдохновляли раньше? И какие сейчас?", emoji: "✨" },
+    { num: 72, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Топ 3 книги или фильма, которые на тебя повлияли", emoji: "📖" },
+    { num: 73, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "В какой этап своей жизни ты рос, как личность сильнее всего?", emoji: "🌱" },
+    { num: 74, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Что сильнее всего изменилось в тебе за прошлые 5 лет?", emoji: "🔄" },
+    { num: 75, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Расскажи про самую большую яму в своей жизни", emoji: "⚫" },
+    { num: 76, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Какие чувства ты хочешь вызывать своим контентом?", emoji: "💫" },
+    { num: 77, section: "ЛИЧНОСТЬ И ЖИЗНЬ", question: "Каких блогеров сам смотришь?", emoji: "📱" },
+    
+    // 6. ЛИЧНЫЕ ВОПРОСЫ - вопросы 78-90
+    { num: 78, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Какие топ-3 победы над собой, которыми ты гордишься?", emoji: "🏆" },
+    { num: 79, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Каким 5–7 главным вещам ты научился в своей жизни?", emoji: "🎓" },
+    { num: 80, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Назови 5–7 своих убеждений, в которых тебя нельзя переубедить.", emoji: "🗿" },
+    { num: 81, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Худший поступок другого человека в твою сторону.", emoji: "💢" },
+    { num: 82, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "В чем тебе повезло?", emoji: "🍀" },
+    { num: 83, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Что ты больше всего ценишь в других людях?", emoji: "💎" },
+    { num: 84, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "К каким людям ты испытываешь презрение?", emoji: "😒" },
+    { num: 85, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Чего ты боишься больше всего в жизни?", emoji: "😱" },
+    { num: 86, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Какие мысли ты хочешь донести до людей своим блогом?", emoji: "💭" },
+    { num: 87, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Ты в отношениях? Можем ли что-то из этого показать в блоге?", emoji: "💑" },
+    { num: 88, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Что ты всеми силами откладываешь на потом?", emoji: "⏳" },
+    { num: 89, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Какие темы тебе самому сейчас интересны?", emoji: "🤔" },
+    { num: 90, section: "ЛИЧНЫЕ ВОПРОСЫ", question: "Что самого крутого ты узнал на этой неделе?", emoji: "🎉" },
+    
+    // 7. ПОИСК СЮЖЕТНЫХ ЛИНИЙ - вопросы 91-98
+    { num: 91, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "О чем ты сейчас мечтаешь?", emoji: "💭" },
+    { num: 92, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "Какие задачи и проблемы ты сейчас решаешь?", emoji: "🎯" },
+    { num: 93, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "На что ты больше всего времени потратил на прошлой неделе?", emoji: "⏰" },
+    { num: 94, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "Есть ли сейчас какая-то угроза, которая нависла над тобой? (например, депортация)", emoji: "⚡" },
+    { num: 95, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "В каких сферах жизни ты сейчас пытаешься расти?", emoji: "📈" },
+    { num: 96, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "Какие конкретно цели по каждой из этих сфер?", emoji: "🎯" },
+    { num: 97, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "Почему для тебя это важно?", emoji: "❤️" },
+    { num: 98, section: "ПОИСК СЮЖЕТНЫХ ЛИНИЙ", question: "Что мешает эти цели реализовать?", emoji: "🚧" },
+  
+  ];
+
+  const categories = [
+    { name: 'ЭКСПЕРТНОСТЬ', range: [1, 14], emoji: '🎯' },
+    { name: 'ПРОДАЖА ТЕМЫ', range: [15, 30], emoji: '💡' },
+    { name: 'ЗНАНИЯ И ОПЫТ', range: [31, 53], emoji: '🎓' },
+    { name: 'О КУРСЕ', range: [54, 64], emoji: '📚' },
+    { name: 'ЛИЧНОСТЬ И ЖИЗНЬ', range: [65, 77], emoji: '🌟' },
+    { name: 'ЛИЧНЫЕ ВОПРОСЫ', range: [78, 90], emoji: '💭' },
+    { name: 'СЮЖЕТНЫЕ ЛИНИИ', range: [91, 98], emoji: '🎬' },
+  ];
+
+  // ====== State ======
+  let answers = {};
+  let expandedCategories = {};
+  let saveStatus = '';
+  let autosaveTimer = null;
+
+  // ====== Helpers ======
+  function loadAnswers() {
+    const saved = localStorage.getItem('expertAnswers');
+    if (saved) {
+      try {
+        answers = JSON.parse(saved) || {};
+      } catch (e) {
+        console.error('Error loading saved data:', e);
+      }
+    }
+  }
+
+  function autosave() {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      if (Object.keys(answers).length > 0) {
+        localStorage.setItem('expertAnswers', JSON.stringify(answers));
+      }
+    }, 1000);
+  }
+
+  function totalFilledCount() {
+    return Object.keys(answers).filter(k => answers[k] && String(answers[k]).trim()).length;
+  }
+
+  function getCategoryProgress(start, end) {
+    const total = end - start + 1;
+    const filled = questions
+      .filter(q => q.num >= start && q.num <= end)
+      .filter(q => answers[q.num] && String(answers[q.num]).trim())
+      .length;
+    return { filled, total, percentage: (filled / total) * 100 };
+  }
+
+  function setSaveStatusUI(type) {
+    saveStatus = type;
+
+    // reset all
+    const map = [
+      ['save', 'btn-save', 'icon-save', 'label-save'],
+      ['copied', 'btn-copy', 'icon-copy', 'label-copy'],
+      ['exported', 'btn-csv', 'icon-csv', 'label-csv'],
+    ];
+
+    map.forEach(([key, btnId, iconId, labelId]) => {
+      const icon = document.getElementById(iconId);
+      const label = document.getElementById(labelId);
+      if (!icon || !label) return;
+
+      if (type === key) {
+        icon.setAttribute('data-lucide', 'check');
+        label.textContent = 'ГОТОВО';
+      } else {
+        icon.setAttribute('data-lucide', key === 'save' ? 'save' : 'download');
+        label.textContent = key === 'save' ? 'СОХРАНИТЬ' : (key === 'copied' ? 'КОПИЯ' : 'CSV');
+      }
+    });
+
+    lucide.createIcons();
+
+    setTimeout(() => {
+      saveStatus = '';
+      map.forEach(([key, btnId, iconId, labelId]) => {
+        const icon = document.getElementById(iconId);
+        const label = document.getElementById(labelId);
+        if (!icon || !label) return;
+        icon.setAttribute('data-lucide', key === 'save' ? 'save' : 'download');
+        label.textContent = key === 'save' ? 'СОХРАНИТЬ' : (key === 'copied' ? 'КОПИЯ' : 'CSV');
+      });
+      lucide.createIcons();
+    }, 2000);
+  }
+
+  function saveProgress() {
+    localStorage.setItem('expertAnswers', JSON.stringify(answers));
+    setSaveStatusUI('save');
+  }
+
+  function exportToCSV() {
+    try {
+      const csvContent = [
+        ['№', 'Раздел', 'Вопрос', 'Ответ'],
+        ...questions.map(q => [
+          q.num,
+          q.section,
+          q.question,
+          answers[q.num] || ''
+        ])
+      ].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'опросник_эксперта.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+
+      setSaveStatusUI('exported');
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Ошибка экспорта');
+    }
+  }
+
+  function copyAsText() {
+    const textContent = questions
+      .map(q => {
+        const answer = answers[q.num] || '[Не заполнено]';
+        return `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${q.num}. ${q.emoji} ${q.question}\n\nОТВЕТ:\n${answer}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      })
+      .join('\n');
+
+    navigator.clipboard.writeText(textContent).then(() => {
+      setSaveStatusUI('copied');
+    });
+  }
+
+  function toggleCategory(name) {
+    expandedCategories[name] = !expandedCategories[name];
+    const body = document.getElementById(`cat-body-${slug(name)}`);
+    const up = document.getElementById(`chev-up-${slug(name)}`);
+    const down = document.getElementById(`chev-down-${slug(name)}`);
+    if (body) body.classList.toggle('hidden', !expandedCategories[name]);
+    if (up && down) {
+      up.classList.toggle('hidden', !expandedCategories[name]);
+      down.classList.toggle('hidden', expandedCategories[name]);
+    }
+  }
+
+  function slug(name) {
+    return name.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-а-яА-ЯёЁ]/g,'').toLowerCase();
+  }
+
+  function updateTotalProgressUI() {
+    const filled = totalFilledCount();
+    const percent = (filled / 98) * 100;
+    const totalFilledEl = document.getElementById('total-filled');
+    const totalBarEl = document.getElementById('total-bar');
+    if (totalFilledEl) {
+      totalFilledEl.innerHTML = `${filled}<span class="text-gray-600">/98</span>`;
+    }
+    if (totalBarEl) {
+      totalBarEl.style.width = `${percent}%`;
+    }
+  }
+
+  function updateCategoryUI(cat) {
+    const s = slug(cat.name);
+    const prog = getCategoryProgress(cat.range[0], cat.range[1]);
+    const filledEl = document.getElementById(`cat-filled-${s}`);
+    const barEl = document.getElementById(`cat-bar-${s}`);
+    if (filledEl) {
+      filledEl.innerHTML = `${prog.filled}<span class="text-gray-600">/${prog.total}</span>`;
+    }
+    if (barEl) {
+      barEl.style.width = `${prog.percentage}%`;
+    }
+  }
+
+  function handleAnswerChange(num, value, cat) {
+    answers[num] = value;
+    autosave();
+
+    // badge update
+    const badge = document.getElementById(`badge-${num}`);
+    if (badge) {
+      badge.classList.remove('bg-gray-800','text-gray-500','bg-blue-500','text-white');
+      if (value && String(value).trim()) {
+        badge.classList.add('bg-blue-500','text-white');
+      } else {
+        badge.classList.add('bg-gray-800','text-gray-500');
+      }
+    }
+
+    updateCategoryUI(cat);
+    updateTotalProgressUI();
+  }
+
+  // ====== Render ======
+  function renderCategories() {
+    const root = document.getElementById('categories-root');
+    if (!root) return;
+    root.innerHTML = '';
+
+    categories.forEach(cat => {
+      const s = slug(cat.name);
+      const prog = getCategoryProgress(cat.range[0], cat.range[1]);
+      const isExpanded = !!expandedCategories[cat.name];
+      const catQuestions = questions.filter(q => q.num >= cat.range[0] && q.num <= cat.range[1]);
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'mb-4';
+
+      wrapper.innerHTML = `
+        <div class="mb-3">
+          <button class="w-full bg-gray-900 rounded-2xl p-4 mb-3 active:scale-98 transition-transform" id="cat-toggle-${s}">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">${cat.emoji}</span>
+                <div class="text-left">
+                  <div class="text-sm text-white tracking-wide">${cat.name}</div>
+                  <div class="text-xs text-gray-500 tracking-widest">${cat.range[0]}-${cat.range[1]}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-sm text-white" id="cat-filled-${s}">${prog.filled}<span class="text-gray-600">/${prog.total}</span></span>
+                <span>
+                  <i id="chev-up-${s}" data-lucide="chevron-up" class="w-5 h-5 text-gray-400 ${isExpanded ? '' : 'hidden'}"></i>
+                  <i id="chev-down-${s}" data-lucide="chevron-down" class="w-5 h-5 text-gray-400 ${isExpanded ? 'hidden' : ''}"></i>
+                </span>
+              </div>
+            </div>
+            <div class="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+              <div id="cat-bar-${s}" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width:${prog.percentage}%"></div>
+            </div>
+          </button>
+
+          <div id="cat-body-${s}" class="${isExpanded ? '' : 'hidden'}">
+            <div class="space-y-3">
+              ${catQuestions.map(q => {
+                const val = answers[q.num] || '';
+                const filled = val && String(val).trim();
+                return `
+                  <div class="bg-gray-900 rounded-2xl p-4 border-2 border-gray-800 transition-all" data-qnum="${q.num}">
+                    <div class="flex items-start gap-3 mb-3">
+                      <span class="text-2xl flex-shrink-0">${q.emoji}</span>
+                      <div class="flex-1 min-w-0">
+                        <div id="badge-${q.num}" class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs mb-2 ${filled ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-500'}">
+                          ${q.num}
+                        </div>
+                        <p class="text-sm text-white leading-relaxed mb-1">${q.question}</p>
+                      </div>
+                    </div>
+                    <textarea
+                      id="answer-${q.num}"
+                      class="w-full px-4 py-4 bg-black border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y transition-all"
+                      style="min-height:140px;font-weight:700"
+                      placeholder="Напиши ответ...">${val.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      root.appendChild(wrapper);
+
+      // bind toggle
+      document.getElementById(`cat-toggle-${s}`).addEventListener('click', () => toggleCategory(cat.name));
+
+      // bind textareas
+      catQuestions.forEach(q => {
+        const ta = document.getElementById(`answer-${q.num}`);
+        if (ta) {
+          ta.addEventListener('input', (e) => handleAnswerChange(q.num, e.target.value, cat));
+        }
+      });
+    });
+
+    lucide.createIcons();
+  }
+
+  // ====== Init ======
+  loadAnswers();
+  updateTotalProgressUI();
+  renderCategories();
+  updateTotalProgressUI();
+
+  document.getElementById('btn-save').addEventListener('click', saveProgress);
+  document.getElementById('btn-copy').addEventListener('click', copyAsText);
+  document.getElementById('btn-csv').addEventListener('click', exportToCSV);
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
